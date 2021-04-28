@@ -4,5 +4,7 @@
         <file>PersianCalendar.qml</file>
         <file>date-conversion.js</file>
         <file>images/next.png</file>
+        <file>Vazir-Regular.ttf</file>
+        <file>fa-awesome.otf</file>
     </qresource>
 </RCC>

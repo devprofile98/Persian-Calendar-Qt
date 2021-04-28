@@ -8,7 +8,10 @@ ApplicationWindow{
     height: 680
     title: qsTr("Persian Calendar")
     id:mainPageId
-    PersianCalendar{}
+    PersianCalendar{
+        yearRectColor: "red"
+        dayNumberBackColor:"transparent"
+    }
 
 }
 

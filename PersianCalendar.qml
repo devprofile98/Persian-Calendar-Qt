@@ -1,20 +1,32 @@
-import QtQuick 2.0
+import QtQuick 2.15
 import QtQuick.Layouts 1.3
-import QtQuick.Controls 2.2
+import QtQuick.Controls 2.15
 import QtGraphicalEffects 1.0
 
 import "date-conversion.js" as DateConversion
 
 Item {
+
+    FontLoader{
+        source: "/Vazir-Regular.ttf"
+        id:vazir
+    }
+    FontLoader{
+        source: "/fa-awesome.otf"
+        id:awesome
+    }
+
+
     property var calWidth: parent.width
     property var calHeight: parent.height
 
+    property alias calendarBackground: calendarRect.color
     property color yearRectColor: "#edf0f5"
     property color monthRectColor: "transparent"
     property color dayNameRectColor: "transparent"
     property color dayNumberBackColor: "#edf0f5"
     property color daysTextColor: "black"
-    property color selectedDayColor: "red"
+    property color selectedDayColor: "#5C10CA"
     property int selectedDayBorderWidth: 3
 
     property var daysNamePointSize: calverhor(60) === 0 ? application.font.pixelSize : calverhor(60)
@@ -75,6 +87,7 @@ Item {
     }
 
     function selectedCellChanged(x) {
+        console.log("************************", todayDay, todayMonth, todayYear)
         var j;
         var i;
         var counter = -firstDayOfMonth;
@@ -84,14 +97,13 @@ Item {
             for (j = 0; j < 7; j++) {
                 if (x === "" || counter > daysInMonth + 1)
                     break;
-
                 if (x === gridId.children[j].children[i + 1].children[0].children[0].text) {
                     gridId.children[j].children[i + 1].children[0].children[0].color = selectedDayColor
-                    gridId.children[j].children[i + 1].border.color = selectedDayColor
+//                    gridId.children[j].children[i + 1].border.color = selectedDayColor
                     currentDate = {"y": todayYear, "m": todayMonth, "d": DateConversion.fromFarsiNumber(x)}
                 } else {
                     gridId.children[j].children[i + 1].children[0].children[0].color = daysTextColor
-                    gridId.children[j].children[i + 1].border.color = dayNumberBackColor
+//                    gridId.children[j].children[i + 1].border.color = dayNumberBackColor
                 }
 
                 counter++;
@@ -99,7 +111,7 @@ Item {
         }
     }
 
-    function destroyCells() {
+    function destroyCells(){
         var i;
         var j;
 
@@ -122,6 +134,7 @@ Item {
         fri = monthColumns.createObject(gridId, {"text": DateConversion.dayName(6)})
     }
 
+    // create days delegates
     function createCells() {
         var i;
         var j;
@@ -155,10 +168,10 @@ Item {
 
         if (gridId.children[todayNumber].children[parseInt((todayDay / 7) + 1)].children[0].children[0].text !== "") {
             gridId.children[todayNumber].children[parseInt((todayDay / 7) + 1)].children[0].children[0].color = selectedDayColor;
-            gridId.children[todayNumber].children[parseInt((todayDay / 7) + 1)].border.color = selectedDayColor;
+//            gridId.children[todayNumber].children[parseInt((todayDay / 7) + 1)].border.color = selectedDayColor;
         } else {
             gridId.children[todayNumber].children[parseInt((todayDay / 7) + 2)].children[0].children[0].color = selectedDayColor;
-            gridId.children[todayNumber].children[parseInt((todayDay / 7) + 2)].border.color = selectedDayColor;
+//            gridId.children[todayNumber].children[parseInt((todayDay / 7) + 2)].border.color = selectedDayColor;
         }
     }
 
@@ -168,16 +181,19 @@ Item {
     Component {
         id: calendarCell
 
+        // each days cell
         Rectangle {
             width: Math.min(cellMax, calverhor(7)) - 3
             height: width
-            border.color: dayNumberBackColor
-            border.width: selectedDayBorderWidth
-            color: dayNumberBackColor
-            radius: width
+            border.color: "transparent"
+            border.width: 0
+            color: dayscontrol.pressed ? "#5C10CA": dayNumberBackColor
+            radius: 3
             anchors.horizontalCenter: parent.horizontalCenter
 
             MouseArea {
+
+                id:dayscontrol
                 anchors.fill: parent
 
                 onPressed: {
@@ -186,19 +202,27 @@ Item {
 
                 onClicked: {
                     selectedCellChanged(children[0].text)
+                    parent.color = "#a2a2a2"
                     dateSelected()
+                    console.log("******************")
+
                 }
 
                 onDoubleClicked: {
                     selectedCellChanged(children[0].text)
                     dateSelected()
                 }
-
+                // shows day number
                 Text {
                     text: ""
-                    font.pointSize: yearPointSize
+                    color: "red"
                     anchors.horizontalCenter: parent.horizontalCenter
                     anchors.verticalCenter: parent.verticalCenter
+
+                    font{
+                        family: vazir.name
+                        pointSize: yearPointSize - 2
+                    }
                 }
             }
         }
@@ -211,7 +235,7 @@ Item {
             id: column
             property alias text: text.text
 
-            spacing: 3
+            spacing: 0
 
             Rectangle {
                 width: gridId.width/7
@@ -221,39 +245,37 @@ Item {
                 Text {
                     id: text
                     text: column.text
-                    font.pointSize: daysNamePointSize
                     anchors.centerIn: parent
+
+                    font{
+                        family: vazir.name
+                        pointSize: daysNamePointSize - 2
+
+                    }
                 }
 
             }
         }
     }
 
+    // calender background
     Rectangle{
         id: calendarRect
         width: calWidth
-        height: calverhor(1)
+        height: calWidth
+        color: calendarBackground
 
-        gradient : Gradient {
-            GradientStop {
-                position: 0.0
-                color:gradStop1Color
-            }
-            GradientStop {
-                position: 1.0
-                color: gradStop2Color
-            }
-        }
-
+        // Calender Year box
         Rectangle{
+            visible: false
             radius: calverhor(20)
             id: yearRectId
             anchors.left: parent.left
             anchors.right: parent.right
             anchors.top: parent.top
             anchors.margins: 5
-            height: calverhor(10)
-            color: yearRectColor
+            height: 0 //calverhor(10)
+            color: "purple"
 
             Text {
                 id: yearTextId
@@ -270,21 +292,31 @@ Item {
             }
         }
 
+        Rectangle{
+            anchors.top: monthRectId.bottom
+            height:1
+            width: parent.width
+            color:'#ccc'
+        }
+
+        // calender month header
         Rectangle {
             id:monthRectId
             width: parent.width
             height: calverhor(7)
-            color: monthRectColor
+            color: "transparent"
+
             anchors.top: yearRectId.bottom
 
-            Image {
-                id: rightNextId
+            Label{
                 anchors.verticalCenter: parent.verticalCenter
                 anchors.right: parent.right
-                rotation: LayoutMirroring.enabled ? 180 : 0
-                source: "qrc:/images/next.png"
-                sourceSize.width: parent.width / 8
-                sourceSize.height: parent.width / 8
+                anchors.rightMargin: 10
+                font{
+                    family: awesome.name
+                    pixelSize: 20
+                }
+                text: "\uf061"
 
                 MouseArea{
                     anchors.fill: parent
@@ -292,28 +324,31 @@ Item {
                 }
             }
 
-            Image {
-                id: leftNextId
+            Label{
                 anchors.verticalCenter: parent.verticalCenter
                 anchors.left: parent.left
-                rotation: LayoutMirroring.enabled ? 0 : 180
-                source: "qrc:/images/next.png"
-                sourceSize.width: parent.width / 8
-                sourceSize.height: parent.width / 8
+                anchors.leftMargin: 10
+                font{
+                    family: awesome.name
+                    pixelSize: 20
+                }
+                text: "\uf060"
 
                 MouseArea{
                     anchors.fill: parent
                     onClicked: previousMonth()
                 }
-
             }
 
             Text {
                 id: monthId
                 anchors.horizontalCenter: parent.horizontalCenter
                 anchors.verticalCenter: parent.verticalCenter
-                text: thisMonth
-                font.pointSize:Math.min(monthPointSize,maxPointSize*2)
+                text: thisMonth + " " + todayYear
+                font{
+                    family: vazir.name
+                    pointSize:20
+                }
             }
         }
 
@@ -323,6 +358,7 @@ Item {
             height: parent.height - monthRectId.height - yearRectId.height
             anchors.top: monthRectId.bottom
             columns: 7
+
 
             Component.onCompleted: {
                 createColumns()
